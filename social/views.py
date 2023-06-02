@@ -107,6 +107,7 @@ class GithubCallback(APIView):
             "https://github.com/login/oauth/access_token", data=data, headers=headers
         )
         response_json: Dict = response.json()
+        pprint(response_json)
         return response_json.get("access_token")
 
     def get_user_data(self, access_token) -> Dict:
