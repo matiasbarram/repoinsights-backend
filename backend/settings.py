@@ -20,6 +20,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "146.83.216.228",
     "localhost",
+    "127.0.0.1"
 ]
 
 CONSOLIDADA_DATABASE = os.environ["CONSOLIDADA_DB"]
@@ -66,7 +67,8 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost",
-    "http://146.83.216.228"
+    "http://146.83.216.228:5173",
+    "http://127.0.0.1"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
