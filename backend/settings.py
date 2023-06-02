@@ -17,7 +17,10 @@ SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "146.83.216.228",
+    "localhost",
+]
 
 CONSOLIDADA_DATABASE = os.environ["CONSOLIDADA_DB"]
 CONSOLIDADA_USER = os.environ["CONSOLIDADA_USER"]
