@@ -6,6 +6,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 develop = os.environ.get("DEVELOP", False)
+FRONTEND_URL = os.environ["FRONTEND_URL"]
 
 
 # Quick-start development settings - unsuitable for production
