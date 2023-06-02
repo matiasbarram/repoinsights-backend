@@ -20,7 +20,7 @@ class ProtectedView(APIView):
 
 class MetabaseDashboards(APIView):
     def __init__(self) -> None:
-        self.METABASE_SITE_URL = "http://" + settings.METABASE_URL
+        self.METABASE_SITE_URL = settings.METABASE_URL
         self.METABASE_SECRET_KEY = settings.METABASE_SECRET_KEY
 
     def get_token(self, payload):
