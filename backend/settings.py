@@ -63,6 +63,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost",
+    "http://146.83.216.228"
 ]
 
 CORS_ALLOW_CREDENTIALS = True
