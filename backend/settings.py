@@ -191,8 +191,8 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-GITHUB_CLIENT_ID = "c08f1b4915dcc82752dd"
-GITHUB_CLIENT_SECRET = "6c6ef64c26fab561b11dc0b7b4f6e62ce27d4a7b"
+GITHUB_CLIENT_ID = os.environ["GITHUB_CLIENT_ID"]
+GITHUB_CLIENT_SECRET = os.environ["GITHUB_CLIENT_SECRET"]
 GITHUB_SCOPES = ["read:user", "user:email", "repo"]
 
 
