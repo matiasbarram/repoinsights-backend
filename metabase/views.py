@@ -20,7 +20,7 @@ class ProtectedView(APIView):
 
 class MetabaseDashboards(APIView):
     def __init__(self) -> None:
-        self.METABASE_SITE_URL = "http://" + settings.METABASE_URL
+        self.METABASE_SITE_URL = settings.METABASE_URL
         self.METABASE_SECRET_KEY = settings.METABASE_SECRET_KEY
 
     def get_token(self, payload):
@@ -28,7 +28,7 @@ class MetabaseDashboards(APIView):
 
     def get_ids(self):
         # call api
-        return ["1"]
+        return ["3", "4", "5"]
 
     def create_iframe_url(self, dashboard_id, params) -> Tuple:
         if params is None:

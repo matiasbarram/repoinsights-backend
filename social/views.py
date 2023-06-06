@@ -80,7 +80,7 @@ class GithubCallback(APIView):
         token = self.generate_jwt_token(user)
         request.session["access_token"] = access_token
         user_data = self.get_user_data_dict(user)
-        frontend_url = f"http://localhost:5173/auth/callback?token={token['access']}&user={user_data}"
+        frontend_url = f"{settings.FRONTEND_URL}/auth/callback?token={token['access']}&user={user_data}"
         return redirect(frontend_url)
 
     def generate_jwt_token(self, user):
@@ -107,6 +107,7 @@ class GithubCallback(APIView):
             "https://github.com/login/oauth/access_token", data=data, headers=headers
         )
         response_json: Dict = response.json()
+        pprint(response_json)
         return response_json.get("access_token")
 
     def get_user_data(self, access_token) -> Dict:
