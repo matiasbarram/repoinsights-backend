@@ -16,7 +16,7 @@ FRONTEND_URL = os.environ["FRONTEND_URL"]
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True if develop else False
 
 ALLOWED_HOSTS = [
     "146.83.216.228",
@@ -112,13 +112,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 default = {}
 if develop:
-    # use sqlite3 for development
     default = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
@@ -131,7 +126,7 @@ else:
         'PASSWORD': os.environ["DB_PASS"],
         'HOST': os.environ["DB_IP"],
         'PORT': os.environ["DB_PORT"],
-    },
+    }
 
 
 
