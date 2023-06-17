@@ -5,7 +5,7 @@ import mimetypes
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-develop = os.environ.get("DEVELOP", False)
+develop = os.environ.get("DEVELOP", True)
 FRONTEND_URL = os.environ["FRONTEND_URL"]
 
 mimetypes.add_type("text/css", ".css", True)
