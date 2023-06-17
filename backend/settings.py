@@ -9,6 +9,7 @@ develop = os.environ.get("DEVELOP", False)
 FRONTEND_URL = os.environ["FRONTEND_URL"]
 
 mimetypes.add_type("text/css", ".css", True)
+mimetypes.add_type("text/javascript", ".js", True)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
