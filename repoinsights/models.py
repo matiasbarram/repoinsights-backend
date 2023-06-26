@@ -33,3 +33,13 @@ class Project(models.Model):
     forked_from = models.IntegerField(null=True)
     deleted = models.BooleanField(default=False, null=False)
     private = models.BooleanField(null=False, default=False, blank=False)
+
+class Extractions(models.Model):
+    class Meta:
+        db_table = "extractions"
+        managed = False
+
+    id = models.AutoField(primary_key=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="extractions")
+    date = models.DateTimeField()
+    ext_ref_id = models.CharField(max_length=32)
