@@ -60,3 +60,27 @@ class Commit(models.Model):
 
     def __str__(self):
         return self.sha
+    
+
+class Metrics(models.Model):
+    class Meta:
+        db_table = 'metrics'
+        managed = False
+
+    id = models.IntegerField(primary_key=True)
+    name = models.CharField(max_length=255, unique=True)
+    description = models.CharField(max_length=255)
+    measurement_type = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+
+class ProjectMetrics(models.Model):
+    class Meta:
+        db_table = 'project_metrics'
+
+    id = models.IntegerField(primary_key=True)
+    extraction = models.ForeignKey(Extractions, on_delete=models.CASCADE)  # Modificación aquí
+    metric = models.ForeignKey(Metrics, on_delete=models.CASCADE)
+    value = models.CharField(max_length=255)  # Stored as strings, convert as needed
+    created_at = models.DateTimeField(auto_now_add=True)
