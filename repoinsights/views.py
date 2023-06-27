@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 from .models import Project
 from django.db.models import F, Count, Max
 
-from users.models import UserRepoinsihtProject
+from users.models import UserRepoInsightProject
 
 
 class RepoInsightsProjects(APIView):
@@ -29,29 +29,67 @@ class RepoInsightsProjects(APIView):
         return JsonResponse(response, safe=True)
 
 
-class RepoInsightsProjectsLangs(APIView):
+class RepoInsightsProjectsFilters(APIView):
     def get(self, request):
-        langs_with_counts = (
-            Project.objects.using("repoinsights")
-            .filter(forked_from__isnull=True, deleted=False, private=False, language__isnull=False)
-            .values("language")
-            .annotate(total=Count("id"))
-            .order_by("-total")
-        )
+        if "langs" in request.GET.get("filter"):
+            langs_with_counts = (
+                Project.objects.using("repoinsights")
+                .filter(forked_from__isnull=True, deleted=False, private=False, language__isnull=False)
+                .values("language")
+                .annotate(total=Count("id"))
+                .order_by("-total")
+            )
+            
+            langs = [{"name": lang["language"], "count": lang["total"]} for lang in langs_with_counts]
+            
+            response = {"data": langs, "total": len(langs)}
+            return JsonResponse(response, safe=True)
         
-        langs = [{"name": lang["language"], "count": lang["total"]} for lang in langs_with_counts]
-        
-        response = {"data": langs, "total": len(langs)}
-        return JsonResponse(response, safe=True)
+        if "user" in request.GET.get("filter"):
+            current_user_id = request.user.id
+            user_project_ids = list(UserRepoInsightProject.objects.filter(user_id=current_user_id).values_list(
+                "repoinsight_project_id", flat=True
+            ))
+
+            response = {"data": [{
+                "name": "Mis proyectos",
+                "count": len(user_project_ids)
+            }]
+            }
+
+            return JsonResponse(response, safe=True)
+            
+            # projects = (
+            #     Project.objects.using("repoinsights")
+            #     .filter(id__in=user_project_ids)
+            #     .values("id", "name", owner_name=F("owner__login"))
+            #     .filter(forked_from__isnull=True, deleted=False, private=False)
+            # )
     
 
 class RepoInsightsExplore(APIView):
+
+    def get_user_project_ids(self, current_user_id: int):
+        return UserRepoInsightProject.objects.filter(user_id=current_user_id).values_list(
+                    "repoinsight_project_id", flat=True
+                )
+
+
+    def user_selected(self, result: list, user_project_ids):
+        for project in result:
+            if project["id"] in user_project_ids:
+                project["selected"] = True
+            else:
+                project["selected"] = False
+        return result
+
 
     def get(self, request):
         langs = request.GET.get("langs")
         commits = request.GET.get("commits")
         stars = request.GET.get("stars")
         current_user_id = request.user.id
+        user = request.GET.get("user")
 
 
         projects = (
@@ -65,8 +103,12 @@ class RepoInsightsExplore(APIView):
             .distinct()
         )
 
+        if user:
+            user_project_ids = list(self.get_user_project_ids(current_user_id))
+            projects = projects.filter(id__in=user_project_ids)
+
         if langs:
-            langs = langs.split(",")  # Separar los lenguajes en una lista
+            langs = langs.split(",")
             projects = projects.filter(language__in=langs)
 
         # if commits:
@@ -81,16 +123,10 @@ class RepoInsightsExplore(APIView):
 
         result = list(projects)
         total = len(result)
+        user_project_ids = self.get_user_project_ids(current_user_id)
 
-        user_project_ids = UserRepoinsihtProject.objects.filter(user_id=current_user_id).values_list(
-            "repoinsight_project_id", flat=True
-        )
+        self.user_selected(result, user_project_ids)
 
-        for project in result:
-            if project["id"] in user_project_ids:
-                project["selected"] = True
-            else:
-                project["selected"] = False
 
         response = {"data": result, "total": total}
         return JsonResponse(response, safe=True)

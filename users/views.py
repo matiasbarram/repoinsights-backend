@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .models import UserRepoinsihtProject
+from .models import UserRepoInsightProject
 from django.http import JsonResponse
 
 class UserRepoInsightsProjects(APIView):
@@ -16,12 +16,12 @@ class UserRepoInsightsProjects(APIView):
             return JsonResponse({"success": False, "error": "Invalid action"}, status=400)
 
         if action == "add":
-            user_repo_insight_project = UserRepoinsihtProject.objects.create(
+            user_repo_insight_project = UserRepoInsightProject.objects.create(
                 user_id=current_user_id,
                 repoinsight_project_id=project_id
             )
         else:
-            UserRepoinsihtProject.objects.filter(
+            UserRepoInsightProject.objects.filter(
                 user_id=current_user_id,
                 repoinsight_project_id=project_id
             ).delete()

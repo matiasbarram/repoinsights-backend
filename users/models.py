@@ -18,7 +18,7 @@ class CustomUser(AbstractUser):
         return self.username
 
 
-class UserRepoinsihtProject(models.Model):
+class UserRepoInsightProject(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # type: ignore
     repoinsight_project_id = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
