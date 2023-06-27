@@ -19,6 +19,6 @@ class CustomUser(AbstractUser):
 
 
 class UserRepoInsightProject(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # type: ignore
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     repoinsight_project_id = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)

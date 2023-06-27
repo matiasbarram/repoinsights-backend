@@ -43,3 +43,20 @@ class Extractions(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="extractions")
     date = models.DateTimeField()
     ext_ref_id = models.CharField(max_length=32)
+
+
+class Commit(models.Model):
+    class Meta:
+        db_table = "commits"
+        managed = False
+
+    sha = models.CharField(max_length=40)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='authored_commits')
+    committer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='committed_commits')
+    project = models.ForeignKey('Project', on_delete=models.CASCADE, related_name='commits')
+    created_at = models.DateTimeField()
+    message = models.CharField(max_length=256)
+    ext_ref_id = models.CharField(max_length=32)
+
+    def __str__(self):
+        return self.sha
