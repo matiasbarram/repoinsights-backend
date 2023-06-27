@@ -172,7 +172,7 @@ class RepoInsightsProjectsFilters(APIView):
 
             user_project_ids = list(ProjectManager.get_user_project_ids(current_user_id))
             response[USER] = {
-                "data": [{"name": "Mis proyectos", "count": len(user_project_ids)}],
+                "data": [{"name": "Proyectos seleccionados", "count": len(user_project_ids)}],
                 "info": filter_data[USER],
             }
 
