@@ -4,27 +4,37 @@ COMMIT = "commit"
 LANGS = "langs"
 USER = "user"
 
+MeasurementTypes = {
+    "count": None,
+    "hours": "h",
+    "days": "d",
+    "weeks": "w",
+    "boolean": None,
+    "percentage": "%",
+
+}
+
 Rating = Dict[str, Dict[str, int | float]]
 MetricScore = Dict[str, int | str | Rating]
 Metric_scores: List[MetricScore]
-
 Metric_scores = [
         {
             "id": 9, # issue_closed_per_day
+            "title": "Issues cerrados por día",
             "rating": {
-                "A": {
+                "F": {
                     "max": 7,
                     "min": 0
                 },
-                "B": {
+                "C": {
                     "max": 30,
                     "min": 7
                 },
-                "C": {
+                "B": {
                     "max": 60,
                     "min": 30
                 },
-                "F": {
+                "A": {
                     "max": 1000000,
                     "min": 60
                 }
@@ -32,6 +42,8 @@ Metric_scores = [
         },
         {
             "id": 3, # hero project
+            "title": "Hero project",
+            "show_value": False,
             "rating": {
                 "A":{
                     "max": 0.50,
@@ -45,6 +57,7 @@ Metric_scores = [
         },
         {
             "id": 202, # time_to_first_response_issues_avg
+            "title": "Tiempo primera respuesta issue",
             "rating": {
                 "A": {
                     "max": 20,
@@ -58,6 +71,7 @@ Metric_scores = [
         },
         {
             "id": 6, # active_days_coverage
+            "title": "Días activos",
             "rating": {
                 "A": {
                     "max": 1,
@@ -81,6 +95,16 @@ Metric_scores = [
                 },
                 "F": {
                     "max": 0.1,
+                    "min": 0
+                }
+            }
+        },
+        {
+            "id": 29, # commits_in_pr_avg
+            "title": "Commits en PR",
+            "rating": {
+                "A": {
+                    "max": 250,
                     "min": 0
                 }
             }
