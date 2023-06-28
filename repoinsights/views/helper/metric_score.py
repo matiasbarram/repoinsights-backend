@@ -33,7 +33,7 @@ class ProjectMetricScore:
                 
 
     @staticmethod
-    def calc_rating(metric_data: Rating | int, metric_value: float):
+    def calc_rating(metric_data, metric_value: float):
         if metric_value is None:
             return None
         if isinstance(metric_data, dict):        

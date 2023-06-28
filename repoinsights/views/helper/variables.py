@@ -10,40 +10,78 @@ Metric_scores: List[MetricScore]
 
 Metric_scores = [
         {
-            "id": 9,
+            "id": 9, # issue_closed_per_day
             "rating": {
-                # Una semana
                 "A": {
-                    "min": 0,
-                    "max": 7
+                    "max": 7,
+                    "min": 0
                 },
-                # 2 - 4 semanas
                 "B": {
-                    "min": 8,
-                    "max": 30
+                    "max": 30,
+                    "min": 7
                 },
-                # 1 - 2 meses
                 "C": {
-                    "min": 31,
-                    "max": 60
+                    "max": 60,
+                    "min": 30
                 },
-                # más de 3 meses
                 "F": {
-                    "min": 61,
-                    "max": 1000000
+                    "max": 1000000,
+                    "min": 60
                 }
             }
         },
         {
-            "id": 3,
+            "id": 3, # hero project
             "rating": {
                 "A":{
-                    "min": 0,
-                    "max": 0.5
+                    "max": 0.50,
+                    "min": 0
                 },
                 "F": {
-                    "min": 0.51,
-                    "max": 1
+                    "max": 1,
+                    "min": 0.50
+                }
+            }
+        },
+        {
+            "id": 202, # time_to_first_response_issues_avg
+            "rating": {
+                "A": {
+                    "max": 20,
+                    "min": 0
+                },
+                "F":{
+                    "max": 1000000,
+                    "min": 20
+                }
+            }
+        },
+        {
+            "id": 6, # active_days_coverage
+            "rating": {
+                "A": {
+                    "max": 1,
+                    "min": 0.80
+                },
+                "B": {
+                    "max": 0.80,
+                    "min": 0.60
+                },
+                "C": {
+                    "max": 0.60,
+                    "min": 0.40
+                },
+                "D": {
+                    "max": 0.40,
+                    "min": 0.20
+                },
+                "E": {
+                    "max": 0.20,
+                    "min": 0.1
+                },
+                "F": {
+                    "max": 0.1,
+                    "min": 0
                 }
             }
         }
