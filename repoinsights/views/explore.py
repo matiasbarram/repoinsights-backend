@@ -20,14 +20,6 @@ class RepoInsightsExplore(APIView):
             commit_count__gte=min_total, commit_count__lte=max_total
         )
 
-    @staticmethod
-    def user_selected(result: list, user_project_ids):
-        for project in result:
-            if project["id"] in user_project_ids:
-                project["selected"] = True
-            else:
-                project["selected"] = False
-        return result
 
     def get(self, request):
         langs = request.GET.get(LANGS)
@@ -56,7 +48,7 @@ class RepoInsightsExplore(APIView):
 
         total = len(result)
         user_project_ids = ProjectManager.get_user_project_ids(current_user_id)
-        self.user_selected(result, user_project_ids)
+        result = ProjectManager.user_selected(result, user_project_ids)
 
         response = {"data": result, "total": total}
         return JsonResponse(response, safe=True)

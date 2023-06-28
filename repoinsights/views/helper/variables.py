@@ -15,12 +15,19 @@ MeasurementTypes = {
 }
 
 Rating = Dict[str, Dict[str, int | float]]
-MetricScore = Dict[str, int | str | Rating]
+Weight = Dict[str, int | float | bool]
+MetricScore = Dict[str, int | str | float | Rating | Weight ]
 Metric_scores: List[MetricScore]
+
+N = 5
 Metric_scores = [
         {
             "id": 9, # issue_closed_per_day
             "title": "Issues cerrados por día",
+            "weight": {
+                "value": 0.2,
+                "invert": False
+            },
             "rating": {
                 "F": {
                     "max": 7,
@@ -42,6 +49,10 @@ Metric_scores = [
         },
         {
             "id": 3, # hero project
+            "weight": {
+                "value": 0.2,
+                "invert": True
+            },
             "title": "Hero project",
             "show_value": False,
             "rating": {
@@ -57,6 +68,10 @@ Metric_scores = [
         },
         {
             "id": 202, # time_to_first_response_issues_avg
+            "weight": {
+                "value": 0.2,
+                "invert": True
+            },
             "title": "Tiempo primera respuesta issue",
             "rating": {
                 "A": {
@@ -71,6 +86,10 @@ Metric_scores = [
         },
         {
             "id": 6, # active_days_coverage
+            "weight": {
+                "value": 0.2,
+                "invert": False
+            },
             "title": "Días activos",
             "rating": {
                 "A": {
@@ -101,6 +120,10 @@ Metric_scores = [
         },
         {
             "id": 29, # commits_in_pr_avg
+            "weight": {
+                "value": 0.2,
+                "invert": False
+            },
             "title": "Commits en PR",
             "rating": {
                 "A": {

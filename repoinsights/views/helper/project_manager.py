@@ -33,3 +33,13 @@ class ProjectManager:
             .distinct()
         )
         return projects
+
+
+    @staticmethod
+    def user_selected(result: list, user_project_ids):
+        for project in result:
+            if project["id"] in user_project_ids:
+                project["selected"] = True
+            else:
+                project["selected"] = False
+        return result
