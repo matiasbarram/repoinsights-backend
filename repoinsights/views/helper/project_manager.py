@@ -34,6 +34,21 @@ class ProjectManager:
         )
         return projects
 
+    @staticmethod    
+    def get_project_by_id(id):
+        project = (
+            Project.objects.using("repoinsights")
+            .filter(id=id)
+            .annotate(
+                last_extraction_date=Max("extractions__date"),
+                owner_name=F("owner__login")
+            )
+            .values("id", "name", "owner_name", "last_extraction_date", "language", "created_at")
+            .distinct()
+        )
+        return project
+
+
 
     @staticmethod
     def user_selected(result: list, user_project_ids):
