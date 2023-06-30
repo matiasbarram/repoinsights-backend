@@ -87,10 +87,7 @@ class MetabaseDashboard:
 
     def get_dashboard_ids(self) -> List[int]:
         dashboards = self.get_dashboards()
-        dashboard_ids = []
-        for dashboard in dashboards:
-            dashboard_ids.append(dashboard["id"])
-        return dashboard_ids
+        return [dashboard["id"] for dashboard in dashboards if dashboard["enable_embedding"] == True]
 
 class MetabaseUser:
     def __init__(self, session: MetabaseSession) -> None:

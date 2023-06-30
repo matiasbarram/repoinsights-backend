@@ -22,9 +22,8 @@ class MetabaseDashboards(APIView):
 
     def get_ids(self):
         client = MetabaseClient()
-        dashboards = client.dashboard.get_dashboards()
-        dashboards = [dashboard["id"] for dashboard in dashboards if dashboard["name"] == "RepoInsights" ]
-        return dashboards
+        dashboard_ids = client.dashboard.get_dashboard_ids()
+        return dashboard_ids
 
     def create_iframe_url(self, user_id, dashboard_id, params) -> Tuple:
         if params is None:
