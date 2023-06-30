@@ -3,6 +3,7 @@ from typing import Dict, List
 COMMIT = "commit"
 LANGS = "langs"
 USER = "user"
+SORT = "sort"
 
 MeasurementTypes = {
     "count": None,
@@ -14,7 +15,7 @@ MeasurementTypes = {
 
 }
 
-Rating = Dict[str, Dict[str, int | float]]
+Rating = Dict[str, Dict[str, int | float | bool ]]
 Weight = Dict[str, int | float | bool]
 MetricScore = Dict[str, int | str | float | Rating | Weight ]
 Metric_scores: List[MetricScore]
