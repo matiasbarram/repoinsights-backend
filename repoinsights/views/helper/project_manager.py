@@ -48,8 +48,6 @@ class ProjectManager:
         )
         return project
 
-
-
     @staticmethod
     def user_selected(result: list, user_project_ids):
         for project in result:
@@ -58,3 +56,23 @@ class ProjectManager:
             else:
                 project["selected"] = False
         return result
+
+
+    @staticmethod
+    def get_languages():
+        languages = list(
+            Project.objects.using("repoinsights")
+            .filter(forked_from__isnull=True, deleted=False)
+            .values_list("language", flat=True)
+            .distinct()
+        )
+        return languages
+    
+    @staticmethod
+    def add_user_field_to_projects(projects, user_project_ids):
+        for project in projects:
+            if project["id"] in user_project_ids:
+                project["selected"] = True
+            else:
+                project["selected"] = False
+        return projects

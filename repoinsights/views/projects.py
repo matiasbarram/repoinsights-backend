@@ -1,22 +1,16 @@
 from django.db.models import F
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from ..models import Project
 
+from .helper.project_manager import ProjectManager
 
 class RepoInsightsProjects(APIView):
     def get(self, request):
-        projects = list(
-            Project.objects.using("repoinsights")
-            .values("id", "name", owner_name=F("owner__login"))
-            .filter(forked_from__isnull=True, deleted=False, private=False)
-        )
-        languages = list(
-            Project.objects.using("repoinsights")
-            .filter(forked_from__isnull=True, deleted=False)
-            .values_list("language", flat=True)
-            .distinct()
-        )
+        user_id = request.user.id
+        projects = list(ProjectManager.get_projects())
+        languages = list(ProjectManager.get_languages())
+        user_projects = list(ProjectManager.get_user_project_ids(user_id))
+        projects = ProjectManager.user_selected(projects, user_projects)
 
         response = {
             "projects": {"data": projects, "total": len(projects)},

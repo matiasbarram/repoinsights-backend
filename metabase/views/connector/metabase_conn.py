@@ -73,7 +73,24 @@ class MetabaseGroup:
         )
         data = response.json()
         return data
+    
+class MetabaseDashboard:
+    def __init__(self, session: MetabaseSession) -> None:
+        self.session = session
 
+    def get_dashboards(self) -> Dict:
+        response = self.session.session.get(
+            self.session.metabase_url + "dashboard"
+        )
+        data = response.json()
+        return data
+
+    def get_dashboard_ids(self) -> List[int]:
+        dashboards = self.get_dashboards()
+        dashboard_ids = []
+        for dashboard in dashboards:
+            dashboard_ids.append(dashboard["id"])
+        return dashboard_ids
 
 class MetabaseUser:
     def __init__(self, session: MetabaseSession) -> None:
@@ -185,6 +202,7 @@ class MetabaseClient:
         self.access = MetabaseAccess(self.session)
         self.database = MetabaseDatabase(self.session)
         self.connection = MetabaseConnection(self.session)
+        self.dashboard = MetabaseDashboard(self.session)
 
 
 if __name__ == "__main__":
