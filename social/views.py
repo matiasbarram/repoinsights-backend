@@ -12,10 +12,10 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from metabase.connector.create_role_and_policy import create_user_with_policy
+from metabase.views.connector.create_role_and_policy import create_user_with_policy
 from psycopg2.errors import DuplicateObject
 from rest_framework_simplejwt.tokens import RefreshToken
-from metabase.connector.metabase_conn import MetabaseClient
+from metabase.views.connector.metabase_conn import MetabaseClient
 from metabase.models import MetabaseUserData
 from django.conf import settings
 
@@ -186,10 +186,11 @@ class GithubCallback(APIView):
         try:
             metabase_client = MetabaseClient()
             pprint("Creating metabase user...")
-            user_id, group_id = metabase_client.create_user(
+            user_id, group_id = metabase_client.user.create_user(
                 fname=user.github_username, email=user.github_email
             )
-            metabase_client.add_user_to_group(group_id=group_id, user_id=user_id)
+
+            metabase_client.group.add_user_to_group(group_id=group_id, user_id=user_id)
             repoinsights_user, repoinsights_password = (
                 user.github_username,
                 user.github_username,
@@ -213,9 +214,9 @@ class GithubCallback(APIView):
 
             pprint("Creating metabase user...")
             metabase_db_name = f"{repoinsights_user}_consolidada"
-            database_id = metabase_client.obtener_id_database(metabase_db_name)
+            database_id = metabase_client.database.obtener_id_database(metabase_db_name)
             if database_id is None:
-                database_id = metabase_client.agregar_conexion_metabase(
+                database_id = metabase_client.connection.agregar_conexion_metabase(
                     dbname=settings.CONSOLIDADA_DATABASE,
                     host="consolidada",
                     puerto=settings.CONSOLIDADA_PORT,
@@ -225,12 +226,12 @@ class GithubCallback(APIView):
                     tipo_motor="postgres",
                 )
                 sleep(5)
-                database_id = metabase_client.obtener_id_database(metabase_db_name)
+                database_id = metabase_client.database.obtener_id_database(metabase_db_name)
             pprint(database_id)
-            graph = metabase_client.permissions_graph()
+            graph = metabase_client.permissions.permissions_graph()
             pprint(graph)
             if database_id is not None:
-                updated_graph = metabase_client.restringir_acceso_base_datos(
+                updated_graph = metabase_client.access.restringir_acceso_base_datos(
                     graph, database_id, group_id
                 )
                 pprint(updated_graph)

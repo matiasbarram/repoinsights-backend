@@ -28,7 +28,7 @@ class MetabaseDashboards(APIView):
 
     def get_ids(self):
         # call api
-        return ["3", "4", "5"]
+        return ["1"]
 
     def create_iframe_url(self, dashboard_id, params) -> Tuple:
         if params is None:
