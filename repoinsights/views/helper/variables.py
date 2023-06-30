@@ -23,7 +23,7 @@ Metric_scores: List[MetricScore]
 N = 5
 Metric_scores = [
         {
-            "id": 9, # issue_closed_per_day
+            "name": "issue_closed_per_day",
             "title": "Issues cerrados por día",
             "weight": {
                 "value": 0.2,
@@ -49,12 +49,12 @@ Metric_scores = [
             }
         },
         {
-            "id": 3, # hero project
+            "name": "hero_project",
+            "title": "Hero project",
             "weight": {
                 "value": 0.2,
                 "invert": True
             },
-            "title": "Hero project",
             "show_value": False,
             "rating": {
                 "A":{
@@ -68,12 +68,12 @@ Metric_scores = [
             }
         },
         {
-            "id": 202, # time_to_first_response_issues_avg
+            "name": "time_to_first_response_issues_avg",
+            "title": "Tiempo primera respuesta issue",
             "weight": {
                 "value": 0.2,
                 "invert": True
             },
-            "title": "Tiempo primera respuesta issue",
             "rating": {
                 "A": {
                     "max": 20,
@@ -86,12 +86,12 @@ Metric_scores = [
             }
         },
         {
-            "id": 6, # active_days_coverage
+            "name": "active_days_coverage",
+            "title": "Días activos",
             "weight": {
                 "value": 0.2,
                 "invert": False
             },
-            "title": "Días activos",
             "rating": {
                 "A": {
                     "max": 1,
@@ -120,12 +120,12 @@ Metric_scores = [
             }
         },
         {
-            "id": 29, # commits_in_pr_avg
+            "name": "commits_in_pr_avg",
+            "title": "Commits en PR",
             "weight": {
                 "value": 0.2,
                 "invert": False
             },
-            "title": "Commits en PR",
             "rating": {
                 "A": {
                     "max": 250,

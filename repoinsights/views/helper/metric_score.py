@@ -11,7 +11,7 @@ from .variables import (
 
 class ProjectMetricScore:
     @staticmethod
-    def calc_metric_value(metric_id, project_id):
+    def calc_metric_value(metric_name, project_id):
         query = f"""
             SELECT
                 pm.value AS value,
@@ -27,15 +27,15 @@ class ProjectMetricScore:
             ) AS max_extractions ON e.date = max_extractions.max_date AND e.project_id = max_extractions.project_id
             JOIN "ghtorrent_restore_2015"."projects" p ON e.project_id = p.id
             JOIN metrics m ON pm.metric_id = m.id
-            WHERE pm.metric_id = {metric_id}
+            WHERE m.name = '{metric_name}'
         """
         cursor = connections["repoinsights"].cursor()
         cursor.execute(query)
         response = cursor.fetchone()
-        metric_value = float(response[0]) if response else None
-        metric_name: str | None = str(response[1]) if response else None
-        metric_measurement: str | None = str(response[2]) if response else None
-        return metric_value, metric_name, metric_measurement
+        value = float(response[0]) if response else None
+        name: str | None = str(response[1]) if response else None
+        measurement: str | None = str(response[2]) if response else None
+        return value, name, measurement
 
     @staticmethod
     def calc_rating(metric_data, metric_value: float):
@@ -57,25 +57,25 @@ class ProjectMetricScore:
             project["rating"] = []
             project_id = project["id"]
             for metric_score in Metric_scores:
-                metric_id = metric_score["id"]
+                metric_name = metric_score["name"]
                 metric_rating = metric_score["rating"]
                 (
                     metric_value,
                     metric_name,
                     metric_measurement,
-                ) = ProjectMetricScore.calc_metric_value(metric_id, project_id)
+                ) = ProjectMetricScore.calc_metric_value(metric_name, project_id)
                 if metric_value is None:
                     continue
                 if metric_name is None:
                     continue
                 rating = ProjectMetricScore.calc_rating(metric_rating, metric_value)
                 show_value = metric_score.get("show_value", True)
-                metric_name = (
+                metric_title = (
                     metric_score["title"] if metric_score.get("title") else metric_name
                 )
                 data = {
-                    "id": metric_id,
-                    "name": metric_name,
+                    "id": metric_name,
+                    "name": metric_title,
                     "value": metric_value,
                     "rating": rating,
                     "show_value": show_value,
@@ -90,7 +90,7 @@ class ProjectMetricScore:
     def get_metrics():
         return [
             {
-                "id": metric["id"], 
+                "id": metric["name"], 
                 "name": metric["title"],
                 "invert": metric["weight"]["invert"] # type: ignore
             } for metric in Metric_scores

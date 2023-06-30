@@ -30,8 +30,8 @@ class RepoInsightsFeaturedProjects(APIView):
     def calculate_score(self, metrics_scores, projects):
         score = 0
         for metric in metrics_scores:
-            metric_id = metric["id"]
-            numeric_rating = self.find_numeric_rating(metric_id, projects)
+            metric_name = metric["name"]
+            numeric_rating = self.find_numeric_rating(metric_name, projects)
             if numeric_rating is not None:
                 numeric_rating = self.invert_if_necessary(metric, numeric_rating)
                 score += metric["weight"]["value"] * numeric_rating

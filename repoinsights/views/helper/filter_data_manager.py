@@ -8,11 +8,11 @@ from ..helper.metric_score import ProjectMetricScore
 class FilterDataManager:
 
     @staticmethod
-    def sort_by(projects: List[Any], sort_id: int):
+    def sort_by(projects: List[Any], sort_name: int):
         rating_metrics = ProjectMetricScore.get_metrics()
-        exist = next((metric for metric in rating_metrics if metric['id'] == sort_id), None)
+        exist = next((metric for metric in rating_metrics if metric['name'] == sort_name), None)
         if exist:
-            projects = sorted(projects, key=lambda project: next((rating['value'] for rating in project['rating'] if rating['id'] == sort_id), 0), reverse=True)
+            projects = sorted(projects, key=lambda project: next((rating['value'] for rating in project['rating'] if rating['id'] == sort_name), 0), reverse=True)
         return projects
 
 
