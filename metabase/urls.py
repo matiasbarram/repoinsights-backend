@@ -1,7 +1,6 @@
 from django.urls import path
-from .views import ProtectedView, MetabaseDashboards
+from .views.dashboards import MetabaseDashboards
 
 urlpatterns = [
-    path("test/", ProtectedView.as_view(), name="test"),
     path("public/dashboards/", MetabaseDashboards.as_view(), name="metabase_dashboard"),
 ]

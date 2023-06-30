@@ -4,18 +4,12 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 import jwt
 import time
 from django.conf import settings
 
-
-
-class ProtectedView(APIView):
-    def get(self, request):
-        return Response(
-            {"message": "Esta información es solo para usuarios autenticados"}
-        )
+from repoinsights.views.helper.project_manager import ProjectManager
+from metabase.views.connector.metabase_conn import MetabaseClient
 
 
 class MetabaseDashboards(APIView):
@@ -27,16 +21,20 @@ class MetabaseDashboards(APIView):
         return jwt.encode(payload, self.METABASE_SECRET_KEY, algorithm="HS256")
 
     def get_ids(self):
-        # call api
-        return ["3", "4", "5"]
+        client = MetabaseClient()
+        dashboard_ids = client.dashboard.get_dashboard_ids()
+        return dashboard_ids
 
-    def create_iframe_url(self, dashboard_id, params) -> Tuple:
+    def create_iframe_url(self, user_id, dashboard_id, params) -> Tuple:
         if params is None:
-            params = {"id": ["1", "2", "3", "4"]}
+            project_ids = ProjectManager.get_user_project_ids(user_id)
+            project_ids = [str(project_id) for project_id in project_ids]
+            params = {"id": project_ids}
+
         payload = {
             "resource": {"dashboard": int(dashboard_id)},
             "params": params,
-            "exp": round(time.time()) + (60 * 10),  # 10 minute expiration
+            "exp": round(time.time()) + (60 * 10),
         }
 
         iframeUrl = (
@@ -49,10 +47,10 @@ class MetabaseDashboards(APIView):
 
     def post(self, request):
         iframes = []
-        pprint(request.data)
+        user_id = request.user.id
         params = request.data.get("params", None)
         for dashboard_id in self.get_ids():
-            iframe, params = self.create_iframe_url(dashboard_id, params)
+            iframe, params = self.create_iframe_url(user_id, dashboard_id, params)
             iframes.append({"iframe": iframe, "params": params})
 
         return JsonResponse({"iframes": iframes}, safe=True)
