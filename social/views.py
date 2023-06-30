@@ -140,11 +140,11 @@ class GithubCallback(APIView):
         github_id = user_data.get("id")
         if not github_id:
             return None
-
+        print(user_data)
         try:
             user = User.objects.get(github_id=github_id)
             user.github_username = user_data.get("login")  # type: ignore
-            # Actualizar otros campos según sea necesario
+            user.github_access_token = access_token # type: ignore
             user.save()
             return user
 
