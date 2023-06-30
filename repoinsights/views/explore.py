@@ -25,7 +25,7 @@ class RepoInsightsExplore(APIView):
 
     def get(self, request):
         current_user_id = request.user.id
-        sort = int(request.GET.get(SORT)) if request.GET.get(SORT) else None
+        sort = request.GET.get(SORT) if request.GET.get(SORT) else None
         langs = request.GET.get(LANGS)
         commits = request.GET.get(COMMIT)
         user = request.GET.get(USER)
