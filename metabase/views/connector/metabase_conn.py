@@ -6,6 +6,10 @@ import json
 from metabase.views.connector.create_role_and_policy import create_user_with_policy
 from psycopg2.errors import DuplicateObject
 from django.conf import settings
+import time
+import jwt
+
+from repoinsights.views.helper.project_manager import ProjectManager
 
 
 class MetabaseSession:
@@ -22,7 +26,6 @@ class MetabaseSession:
             json={"username": username, "password": password},
         )
         data = response.json()
-        pprint(data)
         self.token = data["id"]
         self.session.headers.update({"X-Metabase-Session": self.token})
 
@@ -73,21 +76,49 @@ class MetabaseGroup:
         )
         data = response.json()
         return data
-    
+
+
 class MetabaseDashboard:
     def __init__(self, session: MetabaseSession) -> None:
         self.session = session
 
-    def get_dashboards(self) -> Dict:
-        response = self.session.session.get(
-            self.session.metabase_url + "dashboard"
-        )
+    def filter_by_description(self, dashboards, filter: str) -> List:
+        ids_list = []
+        for dashboard in dashboards:
+            if (
+                dashboard.get("description")
+                and filter in dashboard["description"]
+                and dashboard["enable_embedding"] == True
+            ):
+                ids_list.append(dashboard["id"])
+        return ids_list
+
+    def get_all_dashboards(self, filter: Optional[str]=None):
+        response = self.session.session.get(self.session.metabase_url + "dashboard")
         data = response.json()
         return data
 
-    def get_dashboard_ids(self) -> List[int]:
-        dashboards = self.get_dashboards()
-        return [dashboard["id"] for dashboard in dashboards if dashboard["enable_embedding"] == True]
+    def get_dashboard_ids(self, filter) -> List[int]:
+        dashboards = self.get_all_dashboards()
+        if filter:
+            return self.filter_by_description(dashboards, filter)
+        return [
+            dashboard["id"]
+            for dashboard in dashboards
+            if dashboard["enable_embedding"] == True
+        ]
+
+    def get_dashboard_by_id(
+        self, dashboard_id: int, filter: Optional[str] = None
+    ) -> Dict:
+        response = self.session.session.get(
+            self.session.metabase_url + f"dashboard/{dashboard_id}"
+        )
+        data = response.json()
+        if filter:
+            return self.filter_by_description(data, filter) # type: ignore
+        return data
+
 
 class MetabaseUser:
     def __init__(self, session: MetabaseSession) -> None:
@@ -189,6 +220,33 @@ class MetabaseConnection:
             print("Error al agregar la conexión:", str(e))
 
 
+class MetabaseShare:
+    def __init__(self, session: MetabaseSession) -> None:
+        self.session = session
+
+    def get_token(self, payload):
+        return jwt.encode(payload, settings.METABASE_SECRET_KEY, algorithm="HS256")
+
+    def create_iframe_url(self, user_id, dashboard_id, params) -> Tuple:
+        if params is None:
+            project_ids = ProjectManager.get_user_project_ids(user_id)
+            project_ids = [str(project_id) for project_id in project_ids]
+            params = {"id": project_ids}
+        payload = {
+            "resource": {"dashboard": int(dashboard_id)},
+            "params": params,
+            "exp": round(time.time()) + (60 * 10),
+        }
+
+        iframeUrl = (
+            settings.METABASE_URL
+            + "/embed/dashboard/"
+            + self.get_token(payload)
+            + "#bordered=true&titled=true"
+        )
+        return iframeUrl, params
+
+
 class MetabaseClient:
     def __init__(self) -> None:
         self.session = MetabaseSession()
@@ -200,6 +258,7 @@ class MetabaseClient:
         self.database = MetabaseDatabase(self.session)
         self.connection = MetabaseConnection(self.session)
         self.dashboard = MetabaseDashboard(self.session)
+        self.share = MetabaseShare(self.session)
 
 
 if __name__ == "__main__":
