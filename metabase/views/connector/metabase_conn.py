@@ -199,7 +199,7 @@ class MetabaseShare:
             settings.METABASE_URL
             + "/embed/dashboard/"
             + self.get_token(payload)
-            + "#bordered=true&titled=true"
+            + "#bordered=true&titled=false"
         )
         return iframeUrl, params
 
