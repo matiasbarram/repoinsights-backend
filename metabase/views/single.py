@@ -18,8 +18,5 @@ class SingleDashboard(APIView):
         project_id = request.data.get("params")
         client = MetabaseClient()
         dashboards_ids = client.dashboard.get_dashboard_ids("single")
-        iframes = []
-        for dash_id in dashboards_ids:
-            iframe, params = client.share.create_iframe_url(user_id, dash_id, project_id)
-            iframes.append({"iframe": iframe, "params": params})
+        iframes = client.dashboard.create_dashboard_response(dashboards_ids, user_id, project_id)
         return JsonResponse({"dashboards": iframes}, safe=True)
