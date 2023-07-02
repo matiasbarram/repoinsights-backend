@@ -77,49 +77,6 @@ class MetabaseGroup:
         data = response.json()
         return data
 
-
-class MetabaseDashboard:
-    def __init__(self, session: MetabaseSession) -> None:
-        self.session = session
-
-    def filter_by_description(self, dashboards, filter: str) -> List:
-        ids_list = []
-        for dashboard in dashboards:
-            if (
-                dashboard.get("description")
-                and filter in dashboard["description"]
-                and dashboard["enable_embedding"] == True
-            ):
-                ids_list.append(dashboard["id"])
-        return ids_list
-
-    def get_all_dashboards(self, filter: Optional[str]=None):
-        response = self.session.session.get(self.session.metabase_url + "dashboard")
-        data = response.json()
-        return data
-
-    def get_dashboard_ids(self, filter) -> List[int]:
-        dashboards = self.get_all_dashboards()
-        if filter:
-            return self.filter_by_description(dashboards, filter)
-        return [
-            dashboard["id"]
-            for dashboard in dashboards
-            if dashboard["enable_embedding"] == True
-        ]
-
-    def get_dashboard_by_id(
-        self, dashboard_id: int, filter: Optional[str] = None
-    ) -> Dict:
-        response = self.session.session.get(
-            self.session.metabase_url + f"dashboard/{dashboard_id}"
-        )
-        data = response.json()
-        if filter:
-            return self.filter_by_description(data, filter) # type: ignore
-        return data
-
-
 class MetabaseUser:
     def __init__(self, session: MetabaseSession) -> None:
         self.session = session
@@ -227,7 +184,7 @@ class MetabaseShare:
     def get_token(self, payload):
         return jwt.encode(payload, settings.METABASE_SECRET_KEY, algorithm="HS256")
 
-    def create_iframe_url(self, user_id, dashboard_id, params) -> Tuple:
+    def create_iframe_url(self, user_id: int, dashboard_id: str | int, params) -> Tuple:
         if params is None:
             project_ids = ProjectManager.get_user_project_ids(user_id)
             project_ids = [str(project_id) for project_id in project_ids]
@@ -247,6 +204,69 @@ class MetabaseShare:
         return iframeUrl, params
 
 
+class MetabaseDashboard:
+    def __init__(self, session: MetabaseSession, share: MetabaseShare) -> None:
+        self.session = session
+        self.share = share
+
+    def filter_by_description(self, dashboards, filter: str) -> List:
+        ids_list = []
+        for dashboard in dashboards:
+            if (
+                dashboard.get("description")
+                and filter in dashboard["description"]
+                and dashboard["enable_embedding"] == True
+            ):
+                ids_list.append(dashboard)
+        return ids_list
+    
+    def create_dashboard_response(self, dashboards_ids: List[Dict], user_id: int, project_id: str | int):
+        iframes = []
+        for dashboard in dashboards_ids:
+            url, params = self.share.create_iframe_url(
+                user_id, dashboard["id"], project_id
+            )
+            iframes.append(
+                self.dashboard_response(
+                    url=url, dashboard=dashboard, params=params
+                )
+            )
+        return iframes
+    
+    def dashboard_response(self, url: str, params: List, dashboard: Dict) -> Dict:
+        return {"data": dashboard, "iframe": url, "params": params}
+
+    def get_all_dashboards(self, filter: Optional[str] = None):
+        response = self.session.session.get(self.session.metabase_url + "dashboard")
+        data = response.json()
+        return data
+
+    def get_dashboard_ids(self, filter: Optional[str]=None) -> List[Dict[str, Union[int, str]]]:
+        dashboards = self.get_all_dashboards()
+        if filter:
+            return self.filter_by_description(dashboards, filter)
+        return [
+            {
+                "id": dashboard["id"], 
+                "name": dashboard["name"]
+             }
+            for dashboard in dashboards
+            if dashboard["enable_embedding"] == True
+        ]
+
+    def get_dashboard_by_id(
+        self, dashboard_id: int, filter: Optional[str] = None
+    ) -> Dict:
+        response = self.session.session.get(
+            self.session.metabase_url + f"dashboard/{dashboard_id}"
+        )
+        data = response.json()
+        if filter:
+            return self.filter_by_description(data, filter)  # type: ignore
+        return data
+
+
+
 class MetabaseClient:
     def __init__(self) -> None:
         self.session = MetabaseSession()
@@ -257,8 +277,8 @@ class MetabaseClient:
         self.access = MetabaseAccess(self.session)
         self.database = MetabaseDatabase(self.session)
         self.connection = MetabaseConnection(self.session)
-        self.dashboard = MetabaseDashboard(self.session)
         self.share = MetabaseShare(self.session)
+        self.dashboard = MetabaseDashboard(self.session, self.share)
 
 
 if __name__ == "__main__":

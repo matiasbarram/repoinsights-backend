@@ -49,8 +49,8 @@ class MetabaseDashboards(APIView):
         iframes = []
         user_id = request.user.id
         params = request.data.get("params", None)
-        for dashboard_id in self.get_ids():
-            iframe, params = self.create_iframe_url(user_id, dashboard_id, params)
+        for dashboard in self.get_ids():
+            iframe, params = self.create_iframe_url(user_id, dashboard["id"], params)
             iframes.append({"iframe": iframe, "params": params})
 
         return JsonResponse({"iframes": iframes}, safe=True)
