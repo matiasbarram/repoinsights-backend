@@ -22,7 +22,7 @@ def create_user_with_policy(
     )
     policy_name = f"{username}_policy"
     cur = conn.cursor()
-    cur.execute(sql.SQL("WITH USER {}").format(sql.Identifier(username)))
+    cur.execute(sql.SQL("CREATE USER {}").format(sql.Identifier(username)))
     cur.execute(
         sql.SQL("ALTER USER {} WITH PASSWORD %s").format(sql.Identifier(username)),
         [password],
