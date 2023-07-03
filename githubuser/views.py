@@ -14,9 +14,9 @@ from social.models import UserTokens as UserTokensModel
 
 class GitHubProjects(APIView):
     def get(self, request):
-        print(request.user)
+        project_per_page = 5
         current_page = int(request.GET.get("page", 1))
-        url = f"https://api.github.com/user/repos?page={current_page}&per_page=10&affiliation=owner"
+        url = f"https://api.github.com/user/repos?page={current_page}&per_page={project_per_page}&affiliation=owner&sort=updated"
         headers = {"Authorization": f"token {request.user.github_access_token}"}
         try:
             response = requests.get(url, headers=headers)
@@ -121,10 +121,11 @@ class GitHubAddProject(APIView):
 
 class UserTokens(APIView):
     def hide_last_chars(self, token: str) -> str:
-        n = 20
+        n = 25
         first_chrs = token[:-n]
         asterics = "*" * n
-        return first_chrs + asterics
+        token_hidded = first_chrs + asterics
+        return token_hidded[: 20]
 
     def get(self, request):
         user = request.user
@@ -139,15 +140,14 @@ class UserTokens(APIView):
             oauth_token = self.hide_last_chars(user.github_access_token)
             access_tokens = []
             access_tokens.append(
-                {"value": oauth_token, "created_at": user.date_joined, "type": "oauth"}
+                {"value": oauth_token, "created_at": user.date_joined, "type": "OAuth"}
             )
-            print(tokens)
             for token in tokens:
                 access_tokens.append(
                     {
                         "value": self.hide_last_chars(token["token"]),
                         "created_at": token["created_date"],
-                        "type": "personal",
+                        "type": "Personal",
                     }
                 )
             response = {"data": access_tokens}

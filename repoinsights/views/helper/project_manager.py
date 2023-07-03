@@ -15,7 +15,11 @@ class ProjectManager:
         projects = (
             Project.objects.using("repoinsights")
             .filter(forked_from__isnull=True, deleted=False, private=False)
-            .values("id", "name", "language", "selected")
+            .annotate(
+                last_extraction_date=Max("extractions__date"),
+                owner_name=F("owner__login")
+            )
+            .values("id", "name", "language", "owner_name", "last_extraction_date", "created_at")
             .filter(id__in=user_project_ids)
         )
         return projects

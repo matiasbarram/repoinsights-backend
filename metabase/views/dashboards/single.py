@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from django.http import JsonResponse
 
-from .connector.metabase_conn import MetabaseClient
+from ..connector.metabase_conn import MetabaseClient
 
 
 class SingleDashboardByID(APIView):

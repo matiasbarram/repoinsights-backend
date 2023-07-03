@@ -17,3 +17,10 @@ class RepoInsightsProjects(APIView):
             "languages": {"data": languages, "total": len(languages)},
         }
         return JsonResponse(response, safe=True)
+
+
+class RepoInsightsFavProjects(APIView):
+    def get(self, request):
+        user_id = request.user.id
+        projects = list(ProjectManager.get_user_projects(user_id))
+        return JsonResponse({"projects": projects}, safe=True)

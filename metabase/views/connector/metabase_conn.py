@@ -104,6 +104,14 @@ class MetabaseUser:
         user_id = user["id"]
 
         return user_id, group_id
+    
+    def resend_invitation(self, user_id: int) -> Dict:
+        """Resends the invitation to the user."""
+        response = self.session.session.post(
+            self.session.metabase_url + f"user/{user_id}/send_invite"
+        )
+        data = response.json()
+        return data
 
 
 class MetabaseAccess:
