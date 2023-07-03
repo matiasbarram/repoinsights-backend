@@ -1,10 +1,12 @@
 from metabase.views.connector.create_role_and_policy import create_user_with_policy
-
 import os
+import argparse
 
 if __name__ == "__main__":
-    user = "valeriahenriquez"
-    password = "valeriahenriquez"
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-name", required=True, help="User to be created in the database.")
+    parser.add_argument("-password", required=True, help="Password for the new database user.")
+    args = parser.parse_args()
 
     CONSOLIDADA_DATABASE = os.environ["CONSOLIDADA_DB"]
     CONSOLIDADA_USER = os.environ["CONSOLIDADA_USER"]
@@ -14,11 +16,11 @@ if __name__ == "__main__":
     
 
     create_user_with_policy(
-                    dbname=CONSOLIDADA_DATABASE,
-                    dbuser=CONSOLIDADA_USER,
-                    dbhost=CONSOLIDADA_IP,
-                    dbpassword=CONSOLIDADA_PASSWORD,
-                    dbport=CONSOLIDADA_PORT,
-                    username=user,
-                    password=password,
-                )
+        dbname=CONSOLIDADA_DATABASE,
+        dbuser=CONSOLIDADA_USER,
+        dbhost=CONSOLIDADA_IP,
+        dbpassword=CONSOLIDADA_PASSWORD,
+        dbport=CONSOLIDADA_PORT,
+        username=args.name,
+        password=args.password,
+    )
