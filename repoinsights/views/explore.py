@@ -25,7 +25,6 @@ class RepoInsightsExplore(APIView):
 
     def get(self, request):
         current_user_id = request.user.id
-        sort = request.GET.get(SORT) if request.GET.get(SORT) else None
         langs = request.GET.get(LANGS)
         commits = request.GET.get(COMMIT)
         user = request.GET.get(USER)
@@ -53,7 +52,6 @@ class RepoInsightsExplore(APIView):
         total = len(result)
         user_project_ids = ProjectManager.get_user_project_ids(current_user_id)
         result = ProjectManager.user_selected(result, user_project_ids)
-        result = FilterDataManager.sort_by(result, sort) if sort else result
 
         response = {"data": result, "total": total}
         return JsonResponse(response, safe=True)
