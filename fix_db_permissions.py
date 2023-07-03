@@ -5,12 +5,14 @@ import os
 if __name__ == "__main__":
     user = "valeriahenriquez"
     password = "valeriahenriquez"
-    CONSOLIDADA_DATABASE = os.getenv("CONSOLIDADA_DATABASE")
-    CONSOLIDADA_USER = os.getenv("CONSOLIDADA_USER")
-    CONSOLIDADA_IP = os.getenv("CONSOLIDADA_IP")
-    CONSOLIDADA_PASSWORD = os.getenv("CONSOLIDADA_PASSWORD")
-    CONSOLIDADA_PORT = os.getenv("CONSOLIDADA_PORT")
+
+    CONSOLIDADA_DATABASE = os.environ["CONSOLIDADA_DB"]
+    CONSOLIDADA_USER = os.environ["CONSOLIDADA_USER"]
+    CONSOLIDADA_IP = os.environ["CONSOLIDADA_IP"]
+    CONSOLIDADA_PASSWORD = os.environ["CONSOLIDADA_PASS"]
+    CONSOLIDADA_PORT = os.environ["CONSOLIDADA_PORT"]
     
+
     create_user_with_policy(
                     dbname=CONSOLIDADA_DATABASE,
                     dbuser=CONSOLIDADA_USER,
