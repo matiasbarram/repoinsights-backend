@@ -195,7 +195,6 @@ class GithubCallback(APIView):
                 user.github_username,
                 user.github_username,
             )
-            pprint("Creating database user...")
             try:
                 create_user_with_policy(
                     dbname=settings.CONSOLIDADA_DATABASE,
