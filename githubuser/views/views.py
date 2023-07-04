@@ -7,9 +7,12 @@ from django.db.models import F
 from urllib.parse import urlparse, parse_qs
 import requests
 import json
+from datetime import datetime
 
 from social.models import PrivateRepository
 from social.models import UserTokens as UserTokensModel
+from rabbitmq.utils import format_dt
+from rabbitmq.connector import QueueController
 
 
 class GitHubProjects(APIView):
@@ -27,6 +30,7 @@ class GitHubProjects(APIView):
                     projects.append(
                         {
                             "name": project["name"],
+                            "owner": project["owner"]["login"],
                             "description": project["description"],
                             "language": project["language"],
                             "url": project["html_url"],
@@ -89,10 +93,11 @@ class GitHubProjects(APIView):
 
 class GitHubAddProject(APIView):
     def post(self, request):
+        current_user = request.user
+        queue_controller = QueueController()
         user = request.user
         try:
             data = json.loads(request.body)
-            pprint(data)
             # check if exists
             if PrivateRepository.objects.filter(
                 repo_id=data.get("id"), user=user
@@ -104,11 +109,32 @@ class GitHubAddProject(APIView):
             repo = PrivateRepository(
                 user=user,
                 owner_id=user.github_id,
+                owner=data.get("owner"),
                 repo_id=data.get("id"),
                 repo_name=data.get("name"),
                 repo_url=data.get("url"),
             )
             repo.save()
+
+            # get current_user github access token
+            user_tokens = current_user.github_access_token
+            if not user_tokens:
+                return JsonResponse(
+                    {"error": "User has no github access token"}, safe=True, status=400
+                )
+
+            project_message = {
+                "enqueue_time": format_dt(datetime.now()),
+                "attempt": 1,
+                "owner": data["owner"],
+                "project": data["name"],
+                "private": user_tokens,
+                "user_id": user.id,
+                "last_extraction": None,
+            }
+            queue_controller.connect()
+            queue_controller.enqueue(project_message)
+
             return JsonResponse(
                 {"message": "Project added successfully"}, safe=True, status=200
             )
@@ -125,7 +151,7 @@ class UserTokens(APIView):
         first_chrs = token[:-n]
         asterics = "*" * n
         token_hidded = first_chrs + asterics
-        return token_hidded[: 20]
+        return token_hidded[:20]
 
     def get(self, request):
         user = request.user
