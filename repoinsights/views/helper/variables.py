@@ -4,6 +4,7 @@ COMMIT = "commit"
 LANGS = "langs"
 USER = "user"
 SORT = "sort"
+PERSONAL = "personal"
 
 MeasurementTypes = {
     "count": None,

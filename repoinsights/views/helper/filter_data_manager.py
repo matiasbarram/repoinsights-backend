@@ -27,8 +27,12 @@ class FilterDataManager:
     
 
     @staticmethod
-    def get_intervals(commit):
-        return commit.split(" - ")
+    def get_intervals(commit: str) -> list[int]:
+        splited = commit.split(" - ")
+        if len(splited) == 2:
+            return [int(splited[0]), int(splited[1])]
+        else:
+            raise Exception("Invalid commit interval")
                         
 
     @staticmethod
@@ -90,3 +94,26 @@ class FilterDataManager:
             data.append({"name": name, "count": count})
         return data
 
+
+    @staticmethod
+    def project_filtered_by_commits(projects, min_total: int, max_total: int):
+        commit_count = (
+            Commit.objects.using("repoinsights")
+            .filter(project_id=OuterRef("id"))
+            .values("project_id")
+            .annotate(total=Count("id"))
+            .values("total")
+        )
+        return projects.annotate(commit_count=Subquery(commit_count)).filter(
+            commit_count__gte=min_total, commit_count__lte=max_total
+        )
+    
+
+    @staticmethod
+    def user_selected(result: list, user_project_ids):
+        for project in result:
+            if project["id"] in user_project_ids:
+                project["selected"] = True
+            else:
+                project["selected"] = False
+        return result

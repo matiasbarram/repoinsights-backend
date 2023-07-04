@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from .helper.variables import Metric_scores as metric_scores
 from .helper.project_manager import ProjectManager
 from .helper.metric_score import ProjectMetricScore
+from .helper.filter_data_manager import FilterDataManager
 
 
 class WeightError(Exception):
@@ -53,8 +54,8 @@ class RepoInsightsFeaturedProjects(APIView):
             projects = ProjectMetricScore.calc_metric_score(projects)
             top_projects = self.get_top_n_repos(metric_scores, projects, number_of_projects)
 
-            user_project_ids = ProjectManager.get_user_project_ids(current_user_id)
-            top_projects = ProjectManager.user_selected(top_projects, user_project_ids)
+            user_project_ids = ProjectManager.get_user_selected_project_ids(current_user_id)
+            top_projects = FilterDataManager.user_selected(top_projects, user_project_ids)
             return JsonResponse({"projects": top_projects}, status=200, safe=True)
 
         except WeightError as e:
