@@ -1,8 +1,9 @@
-from django.db.models import Count, F, Max, Subquery, OuterRef
+from pprint import pprint
 from django.http import JsonResponse
 from rest_framework.views import APIView
 from ..models import Project, Commit
 
+from django.db.models import Count, F, Max, Subquery, OuterRef
 from .helper.variables import LANGS, COMMIT, USER, SORT
 from .helper.filter_data_manager import FilterDataManager
 from .helper.project_manager import ProjectManager
@@ -10,48 +11,45 @@ from .helper.metric_score import ProjectMetricScore
 
 
 class RepoInsightsExplore(APIView):
-    @staticmethod
-    def project_filtered_by_commits(projects, min_total: int, max_total: int):
-        commit_count = (
-            Commit.objects.using("repoinsights")
-            .filter(project_id=OuterRef("id"))
-            .values("project_id")
-            .annotate(total=Count("id"))
-            .values("total")
-        )
-        return projects.annotate(commit_count=Subquery(commit_count)).filter(
-            commit_count__gte=min_total, commit_count__lte=max_total
-        )
-
     def get(self, request):
-        current_user_id = request.user.id
-        langs = request.GET.get(LANGS)
-        commits = request.GET.get(COMMIT)
-        user = request.GET.get(USER)
+        user = request.user
+        current_user_id = user.id
+        req_langs = request.GET.get(LANGS)
+        req_commits = request.GET.get(COMMIT)
+        req_user = request.GET.get(USER)
 
-        projects = ProjectManager.get_projects()
-        if user:
-            user_project_ids = list(
-                ProjectManager.get_user_project_ids(current_user_id)
-            )
-            projects = projects.filter(id__in=user_project_ids)
+        private_projects_ids = ProjectManager.get_private_projects_ids(user)
+        projects = ProjectManager.get_projects(extra_condition={"id__in": private_projects_ids})
+        print(private_projects_ids)
 
-        if langs:
-            langs = langs.split(",")
-            projects = projects.filter(language__in=langs)
+        if req_user:
+            if req_user == "Proyectos seleccionados":
+                user_project_ids = list(
+                    ProjectManager.get_user_selected_project_ids(current_user_id)
+                )
+                projects = projects.filter(id__in=user_project_ids)
+            elif req_user == "Proyectos privados":
+                ids = list(private_projects_ids)
+                projects = projects.filter(id__in=ids)
+            else:
+                return JsonResponse({"error": "Invalid user filter"}, status=500)
 
-        if commits:
-            commits_list: list = commits.split(",")
+        if req_langs:
+            req_langs = req_langs.split(",")
+            projects = projects.filter(language__in=req_langs)
+
+        if req_commits:
+            commits_list: list = req_commits.split(",")
             for commit in commits_list:
                 min_limit, max_limit = FilterDataManager.get_intervals(commit)
-                projects = self.project_filtered_by_commits(
+                projects = FilterDataManager.project_filtered_by_commits(
                     projects, min_limit, max_limit
                 )
-
+        
         result = ProjectMetricScore.calc_metric_score(projects)
         total = len(result)
-        user_project_ids = ProjectManager.get_user_project_ids(current_user_id)
-        result = ProjectManager.user_selected(result, user_project_ids)
+        user_project_ids = ProjectManager.get_user_selected_project_ids(current_user_id)
+        result = FilterDataManager.user_selected(result, user_project_ids)
 
         response = {"data": result, "total": total}
         return JsonResponse(response, safe=True)
@@ -61,7 +59,7 @@ class RepoInsightsExploreProject(APIView):
     def get(self, request, project_id):
         projects = ProjectManager.get_project_by_id(project_id)
         projects = ProjectMetricScore.calc_metric_score(projects)
-        user_projects = ProjectManager.get_user_project_ids(request.user.id)
+        user_projects = ProjectManager.get_user_selected_project_ids(request.user.id)        
         project = list(projects)[0]
         project["selected"] = True if project_id in user_projects else False
         return JsonResponse(project, safe=False)

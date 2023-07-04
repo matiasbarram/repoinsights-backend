@@ -27,7 +27,7 @@ class MetabaseDashboards(APIView):
 
     def create_iframe_url(self, user_id, dashboard_id, params) -> Tuple:
         if params is None:
-            project_ids = ProjectManager.get_user_project_ids(user_id)
+            project_ids = ProjectManager.get_user_selected_project_ids(user_id)
             project_ids = [str(project_id) for project_id in project_ids]
             params = {"id": project_ids}
 

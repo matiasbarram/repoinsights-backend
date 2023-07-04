@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 
 from .helper.project_manager import ProjectManager
 from .helper.metric_score import ProjectMetricScore
+from .helper.filter_data_manager import FilterDataManager
 
 
 class RepoInsightsProjects(APIView):
@@ -11,8 +12,8 @@ class RepoInsightsProjects(APIView):
         user_id = request.user.id
         projects = list(ProjectManager.get_projects())
         languages = list(ProjectManager.get_languages())
-        user_projects = list(ProjectManager.get_user_project_ids(user_id))
-        projects = ProjectManager.user_selected(projects, user_projects)
+        user_projects = list(ProjectManager.get_user_selected_project_ids(user_id))
+        projects = FilterDataManager.user_selected(projects, user_projects)
 
         response = {
             "projects": {"data": projects, "total": len(projects)},

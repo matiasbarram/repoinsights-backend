@@ -1,17 +1,19 @@
-from django.db.models import Max, F
+from django.db.models import Max, F, Q
+from typing import Optional
 from ...models import Project, Commit
 from users.models import UserRepoInsightProject
 
 class ProjectManager:
     @staticmethod
-    def get_user_project_ids(current_user_id: int):
-        return UserRepoInsightProject.objects.filter(user_id=current_user_id).values_list(
+    def get_user_selected_project_ids(current_user_id: int):
+        projects = UserRepoInsightProject.objects.filter(user_id=current_user_id).values_list(
             "repoinsight_project_id", flat=True
         )
+        return projects
 
     @staticmethod
     def get_user_projects(current_user_id: int):
-        user_project_ids = list(ProjectManager.get_user_project_ids(current_user_id))
+        user_project_ids = list(ProjectManager.get_user_selected_project_ids(current_user_id))
         projects = (
             Project.objects.using("repoinsights")
             .filter(forked_from__isnull=True, deleted=False, private=False)
@@ -25,18 +27,41 @@ class ProjectManager:
         return projects
 
     @staticmethod
-    def get_projects():
+    def get_private_projects_ids(user):
+        github_user_name = user.github_username
+        project_ids = Project.objects.using("repoinsights").filter(owner__login=github_user_name, private=True).values_list(
+            "id", flat=True
+        )
+        return project_ids
+        
+
+    @staticmethod
+    def get_projects(extra_condition: Optional[dict] = None):
+        if extra_condition is None:
+            extra_condition = {}
+        
+        if "id__in" in extra_condition:
+            condition = Q(private=False) | Q(id__in=extra_condition["id__in"])
+        else:
+            condition = Q(private=False)
+
         projects = (
             Project.objects.using("repoinsights")
-            .filter(forked_from__isnull=True, deleted=False, private=False)
+            .filter(
+            condition,
+            forked_from__isnull=True, 
+            deleted=False
+            )
             .annotate(
                 last_extraction_date=Max("extractions__date"),
                 owner_name=F("owner__login")
             )
-            .values("id", "name", "owner_name", "last_extraction_date", "language", "created_at")
+            .values("id", "name", "owner_name", "last_extraction_date", "language", "created_at", "private")
             .distinct()
         )
+        
         return projects
+
 
     @staticmethod    
     def get_project_by_id(id):
@@ -52,15 +77,6 @@ class ProjectManager:
         )
         return project
 
-    @staticmethod
-    def user_selected(result: list, user_project_ids):
-        for project in result:
-            if project["id"] in user_project_ids:
-                project["selected"] = True
-            else:
-                project["selected"] = False
-        return result
-
 
     @staticmethod
     def get_languages():
@@ -71,15 +87,6 @@ class ProjectManager:
             .distinct()
         )
         return languages
-    
-    @staticmethod
-    def add_user_field_to_projects(projects, user_project_ids):
-        for project in projects:
-            if project["id"] in user_project_ids:
-                project["selected"] = True
-            else:
-                project["selected"] = False
-        return projects
     
     @staticmethod
     def check_if_project_exists(owner: str, project_name: int):
