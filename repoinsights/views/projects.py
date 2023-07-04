@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from rest_framework.views import APIView
 
 from .helper.project_manager import ProjectManager
+from .helper.metric_score import ProjectMetricScore
+
 
 class RepoInsightsProjects(APIView):
     def get(self, request):
@@ -22,5 +24,14 @@ class RepoInsightsProjects(APIView):
 class RepoInsightsFavProjects(APIView):
     def get(self, request):
         user_id = request.user.id
-        projects = list(ProjectManager.get_user_projects(user_id))
-        return JsonResponse({"projects": projects}, safe=True)
+        projects = ProjectManager.get_user_projects(user_id)
+        projects = ProjectMetricScore.calc_metric_score(projects, empty_values=True)
+        metrics = ProjectMetricScore.get_metrics()
+
+        return JsonResponse(
+            {
+                "projects": projects,
+                "metrics": metrics,
+            },
+            safe=True,
+        )

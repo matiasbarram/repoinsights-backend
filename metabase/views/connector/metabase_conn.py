@@ -3,8 +3,6 @@ import requests
 from pprint import pprint
 from typing import Any, Dict, List, Union, Optional, Tuple
 import json
-from metabase.views.connector.create_role_and_policy import create_user_with_policy
-from psycopg2.errors import DuplicateObject
 from django.conf import settings
 import time
 import jwt

@@ -51,30 +51,41 @@ class ProjectMetricScore:
             return None
 
     @staticmethod
-    def calc_metric_score(projects) -> list:
+    def calc_metric_score(projects, empty_values=False) -> list:
         projects = list(projects)
         for project in projects:
             project["rating"] = []
             project_id = project["id"]
             for metric_score in Metric_scores:
-                metric_name = metric_score["name"]
-                metric_rating = metric_score["rating"]
+                score_metric_name = metric_score["name"]
+                score_metric_rating = metric_score["rating"]
                 (
                     metric_value,
                     metric_name,
                     metric_measurement,
-                ) = ProjectMetricScore.calc_metric_value(metric_name, project_id)
-                if metric_value is None:
-                    continue
-                if metric_name is None:
-                    continue
-                rating = ProjectMetricScore.calc_rating(metric_rating, metric_value)
+                ) = ProjectMetricScore.calc_metric_value(score_metric_name, project_id)
+                if metric_value is None or metric_name is None or metric_measurement is None:
+                    if empty_values:
+                        data = {
+                            "id": score_metric_name,
+                            "name": score_metric_name,
+                            "value": None,
+                            "rating": None,
+                            "show_value": False,
+                            "measurement": None
+                        }
+                        project["rating"].append(data)
+                        continue
+                    else:
+                        continue
+
+                rating = ProjectMetricScore.calc_rating(score_metric_rating, metric_value)
                 show_value = metric_score.get("show_value", True)
                 metric_title = (
-                    metric_score["title"] if metric_score.get("title") else metric_name
+                    metric_score["title"] if metric_score.get("title") else score_metric_name
                 )
                 data = {
-                    "id": metric_name,
+                    "id": score_metric_name,
                     "name": metric_title,
                     "value": metric_value,
                     "rating": rating,

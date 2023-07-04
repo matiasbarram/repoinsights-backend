@@ -80,3 +80,13 @@ class ProjectManager:
             else:
                 project["selected"] = False
         return projects
+    
+    @staticmethod
+    def check_if_project_exists(owner: str, project_name: int):
+        # find project_name in Projects and owner is in Users.login
+        project = (
+            Project.objects.using("repoinsights")
+            .filter(name=project_name, owner__login=owner)
+            .values("id")
+        )
+        return project.exists()

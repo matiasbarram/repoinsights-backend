@@ -132,5 +132,5 @@ Metric_scores = [
                     "min": 0
                 }
             }
-        }
+        },
     ]

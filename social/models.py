@@ -7,6 +7,7 @@ from django.conf import settings
 class PrivateRepository(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # type: ignore
     owner_id = models.IntegerField()
+    owner = models.CharField(max_length=255, null=True, blank=True)
     repo_id = models.IntegerField()
     repo_name = models.CharField(max_length=255)
     repo_url = models.CharField(max_length=255)
