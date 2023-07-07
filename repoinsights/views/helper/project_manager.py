@@ -72,7 +72,16 @@ class ProjectManager:
                 last_extraction_date=Max("extractions__date"),
                 owner_name=F("owner__login")
             )
-            .values("id", "name", "owner_name", "last_extraction_date", "language", "created_at")
+            .values("id", 
+                    "name", 
+                    "owner_name", 
+                    "last_extraction_date", 
+                    "language", 
+                    "created_at", 
+                    "description",
+                    "private",
+                    "url"
+                    )
             .distinct()
         )
         return project
