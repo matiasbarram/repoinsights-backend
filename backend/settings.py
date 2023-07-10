@@ -76,6 +76,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost",
     "http://146.83.216.228:5173",
     "http://127.0.0.1",
+    "https://repoinsights.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
