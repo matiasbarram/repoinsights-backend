@@ -12,17 +12,20 @@ class ProjectManager:
         return projects
 
     @staticmethod
-    def get_user_projects(current_user_id: int):
+    def get_user_selected_projects(current_user):
+        current_user_id = current_user.id
         user_project_ids = list(ProjectManager.get_user_selected_project_ids(current_user_id))
+        user_private_ids = list(ProjectManager.get_private_projects_ids(current_user))
+        user_projects = user_project_ids + user_private_ids
         projects = (
             Project.objects.using("repoinsights")
-            .filter(forked_from__isnull=True, deleted=False, private=False)
+            .filter(forked_from__isnull=True, deleted=False)
             .annotate(
                 last_extraction_date=Max("extractions__date"),
                 owner_name=F("owner__login")
             )
             .values("id", "name", "language", "owner_name", "last_extraction_date", "created_at")
-            .filter(id__in=user_project_ids)
+            .filter(id__in=user_projects)
         )
         return projects
 

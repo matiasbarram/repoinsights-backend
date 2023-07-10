@@ -24,15 +24,22 @@ class RepoInsightsProjects(APIView):
 
 class RepoInsightsFavProjects(APIView):
     def get(self, request):
-        user_id = request.user.id
-        projects = ProjectManager.get_user_projects(user_id)
-        projects = ProjectMetricScore.calc_metric_score(projects, empty_values=True)
-        metrics = ProjectMetricScore.get_metrics()
+        print(request.GET)
+        response = {}
+        current_user = request.user
+        user_id = current_user.id
+        add_metrics = request.GET.get("metrics", True)
+        user_projects_ids = ProjectManager.get_user_selected_project_ids(user_id)
 
-        return JsonResponse(
-            {
-                "projects": projects,
-                "metrics": metrics,
-            },
-            safe=True,
-        )
+        projects = ProjectManager.get_user_selected_projects(current_user)
+
+        projects = list(projects)
+        projects = FilterDataManager.user_selected(projects, user_projects_ids)
+
+        if add_metrics:
+            projects = ProjectMetricScore.calc_metric_score(projects, empty_values=True)
+            metrics = ProjectMetricScore.get_metrics()
+            response["metrics"] = metrics
+
+        response["projects"] = projects
+        return JsonResponse(response, safe=True)
