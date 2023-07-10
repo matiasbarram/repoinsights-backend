@@ -23,6 +23,8 @@ DEBUG = True if develop else False
 ALLOWED_HOSTS = [
     "146.83.216.228",
     "localhost",
+    "backend.repoinsights.app",
+    "repoinsights.app",
     "127.0.0.1"
 ]
 
