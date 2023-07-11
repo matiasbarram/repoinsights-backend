@@ -14,13 +14,12 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from metabase.views.connector.create_role_and_policy import create_user_with_policy
 from psycopg2.errors import DuplicateObject
-from rest_framework_simplejwt.tokens import RefreshToken
 from metabase.views.connector.metabase_conn import MetabaseClient
 from metabase.models import MetabaseUserData
 from django.conf import settings
 
 from social.models import PrivateRepository
-
+from social.utils import generate_jwt_token, get_user_data_dict
 
 User = get_user_model()
 
@@ -77,19 +76,11 @@ class GithubCallback(APIView):
         user.set_password(password)
         user.save()
 
-        token = self.generate_jwt_token(user)
+        token = generate_jwt_token(user)
         request.session["access_token"] = access_token
-        user_data = self.get_user_data_dict(user)
+        user_data = get_user_data_dict(user)
         frontend_url = f"{settings.FRONTEND_URL}/auth/callback?token={token['access']}&user={user_data}"
         return redirect(frontend_url)
-
-    def generate_jwt_token(self, user):
-        refresh = RefreshToken.for_user(user)
-        token = {
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-        }
-        return token
 
     def generate_password_from_github_username(self, username: str):
         github_username = username.lower()
@@ -144,7 +135,7 @@ class GithubCallback(APIView):
         try:
             user = User.objects.get(github_id=github_id)
             user.github_username = user_data.get("login")  # type: ignore
-            user.github_access_token = access_token # type: ignore
+            user.github_access_token = access_token  # type: ignore
             user.save()
             return user
 
@@ -166,21 +157,7 @@ class GithubCallback(APIView):
             self.create_metabase_user(user)
             return user
 
-    def get_user_data_dict(self, user):
-        user_data = {
-            "login": user.github_username,
-            "name": user.github_username,
-            "email": user.github_email,
-            "avatar": user.github_avatar_url,
-            "user_url": user.github_url,
-            "github_id": user.github_id,
-            "bio": user.github_bio,
-            "company_name": user.github_company,
-            "location": user.github_location,
-            "user_url": user.github_url,
-            "github_id": user.github_id,
-        }
-        return json.dumps(user_data)
+
 
     def create_metabase_user(self, user):
         try:
@@ -203,7 +180,7 @@ class GithubCallback(APIView):
                     dbpassword=settings.CONSOLIDADA_PASSWORD,
                     dbport=settings.CONSOLIDADA_PORT,
                     username=repoinsights_user,
-                    password=repoinsights_password
+                    password=repoinsights_password,
                 )
             except SyntaxError as e:
                 print("Error al crear el usuario de la base de datos:", str(e))
@@ -225,7 +202,9 @@ class GithubCallback(APIView):
                     tipo_motor="postgres",
                 )
                 sleep(5)
-                database_id = metabase_client.database.obtener_id_database(metabase_db_name)
+                database_id = metabase_client.database.obtener_id_database(
+                    metabase_db_name
+                )
             pprint(database_id)
             graph = metabase_client.permissions.permissions_graph()
             pprint(graph)
@@ -246,3 +225,27 @@ class GithubCallback(APIView):
         except Exception as e:
             pprint("Error creating metabase user")
             raise e
+
+
+class RegularLogin(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        print(username, password)
+        if username is None or password is None:
+            return JsonResponse(
+                {"error": "Please provide both username and password"},
+                status=400,
+            )
+        user = User.objects.filter(email=username, github_id=password).first()
+        print(user)
+        if user is None:
+            return JsonResponse(
+                {"error": "Invalid credentials"}, status=400
+)
+        print("Generating token")
+        token = generate_jwt_token(user)
+        user_data = get_user_data_dict(user)
+        return JsonResponse({"token": token['access'], "user": user_data})
