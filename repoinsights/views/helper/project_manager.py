@@ -61,6 +61,7 @@ class ProjectManager:
             )
             .values("id", "name", "owner_name", "last_extraction_date", "language", "created_at", "private")
             .distinct()
+            .order_by("-last_extraction_date")
         )
         
         return projects
