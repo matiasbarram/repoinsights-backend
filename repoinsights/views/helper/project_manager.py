@@ -63,9 +63,7 @@ class ProjectManager:
             .distinct()
             .order_by("-last_extraction_date")
         )
-        
-        projects = [project for project in projects if project["last_extraction_date"] is not None]
-        
+                
         return projects
 
 
