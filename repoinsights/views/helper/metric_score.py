@@ -95,6 +95,11 @@ class ProjectMetricScore:
                     else None,
                 }
                 project["rating"].append(data)
+            if all([metric["value"] is None for metric in project["rating"]]):
+                project["empty"] = True
+            else:
+                project["empty"] = False
+
         return projects
 
     @staticmethod
