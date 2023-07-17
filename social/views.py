@@ -188,39 +188,39 @@ class GithubCallback(APIView):
             except DuplicateObject as e:
                 print("El usuario ya existe:", str(e))
 
-            pprint("Creating metabase user...")
-            metabase_db_name = f"{repoinsights_user}_consolidada"
-            database_id = metabase_client.database.obtener_id_database(metabase_db_name)
-            if database_id is None:
-                database_id = metabase_client.connection.agregar_conexion_metabase(
-                    dbname=settings.CONSOLIDADA_DATABASE,
-                    host="consolidada",
-                    puerto=settings.CONSOLIDADA_PORT,
-                    nombre=metabase_db_name,
-                    usuario=repoinsights_user,
-                    password=repoinsights_password,
-                    tipo_motor="postgres",
-                )
-                sleep(5)
-                database_id = metabase_client.database.obtener_id_database(
-                    metabase_db_name
-                )
-            pprint(database_id)
-            graph = metabase_client.permissions.permissions_graph()
-            pprint(graph)
-            if database_id is not None:
-                updated_graph = metabase_client.access.restringir_acceso_base_datos(
-                    graph, database_id, group_id
-                )
-                pprint(updated_graph)
+            # pprint("Creating metabase user...")
+            # metabase_db_name = f"{repoinsights_user}_consolidada"
+            # database_id = metabase_client.database.obtener_id_database(metabase_db_name)
+            # if database_id is None:
+            #     database_id = metabase_client.connection.agregar_conexion_metabase(
+            #         dbname=settings.CONSOLIDADA_DATABASE,
+            #         host="consolidada",
+            #         puerto=settings.CONSOLIDADA_PORT,
+            #         nombre=metabase_db_name,
+            #         usuario=repoinsights_user,
+            #         password=repoinsights_password,
+            #         tipo_motor="postgres",
+            #     )
+            #     sleep(5)
+            #     database_id = metabase_client.database.obtener_id_database(
+            #         metabase_db_name
+            #     )
+            # pprint(database_id)
+            # graph = metabase_client.permissions.permissions_graph()
+            # pprint(graph)
+            # if database_id is not None:
+            #     updated_graph = metabase_client.access.restringir_acceso_base_datos(
+            #         graph, database_id, group_id
+            #     )
+            #     pprint(updated_graph)
 
-            metabase_user_data = MetabaseUserData(
-                user_id=user.id,
-                metabase_user_id=user_id,
-                metabase_group_id=group_id,
-                metabase_db_id=database_id,
-            )
-            metabase_user_data.save()
+            # metabase_user_data = MetabaseUserData(
+            #     user_id=user.id,
+            #     metabase_user_id=user_id,
+            #     metabase_group_id=group_id,
+            #     metabase_db_id=database_id,
+            # )
+            # metabase_user_data.save()
 
         except Exception as e:
             pprint("Error creating metabase user")
