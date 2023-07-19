@@ -30,7 +30,13 @@ class FilterDataManager:
     def get_intervals(commit: str) -> list[int]:
         splited = commit.split(" - ")
         if len(splited) == 2:
-            return [int(splited[0]), int(splited[1])]
+            inf_limit = splited[0]
+            sup_limit = splited[1]
+            if splited[1].isdigit():
+                sup_limit = int(splited[1])
+            else:
+                sup_limit = 10000000000
+            return [int(inf_limit), sup_limit]
         else:
             raise Exception("Invalid commit interval")
                         
