@@ -5,8 +5,10 @@ import mimetypes
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = "/static/"
+
 develop = os.environ.get("DEVELOP", True)
-debug = os.environ.get("DEBUG", False)
+debug = True
 FRONTEND_URL = os.environ["FRONTEND_URL"]
 
 mimetypes.add_type("text/css", ".css", True)
@@ -190,11 +192,6 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
-
-STATIC_URL = "static/"
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -216,3 +213,4 @@ METABASE_URL = os.environ["METABASE_URL"]
 MB_ADMIN_USER = os.environ["MB_ADMIN_USER"]
 MB_ADMIN_PASS = os.environ["MB_ADMIN_PASS"]
 METABASE_SECRET_KEY = os.environ["METABASE_SECRET_KEY"]
+

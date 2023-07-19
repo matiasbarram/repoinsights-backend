@@ -17,6 +17,7 @@ pika = "*"
 pip = "*"
 install = "*"
 django-extensions = "*"
+gunicorn = "*"
 
 [dev-packages]
 
