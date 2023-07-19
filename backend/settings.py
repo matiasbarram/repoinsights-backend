@@ -6,7 +6,7 @@ import mimetypes
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 develop = os.environ.get("DEVELOP", True)
-debug = os.environ.get("DEBUG", False)
+debug = True
 FRONTEND_URL = os.environ["FRONTEND_URL"]
 
 mimetypes.add_type("text/css", ".css", True)
@@ -212,5 +212,3 @@ MB_ADMIN_USER = os.environ["MB_ADMIN_USER"]
 MB_ADMIN_PASS = os.environ["MB_ADMIN_PASS"]
 METABASE_SECRET_KEY = os.environ["METABASE_SECRET_KEY"]
 
-
-STATIC_URL = "static/"
