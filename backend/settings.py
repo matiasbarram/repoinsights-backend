@@ -6,6 +6,7 @@ import mimetypes
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 develop = os.environ.get("DEVELOP", True)
+debug = os.environ.get("DEBUG", False)
 FRONTEND_URL = os.environ["FRONTEND_URL"]
 
 mimetypes.add_type("text/css", ".css", True)
@@ -18,7 +19,7 @@ mimetypes.add_type("text/javascript", ".js", True)
 SECRET_KEY = os.environ["DJANGO_SECRET_KEY"]
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if develop else False
+DEBUG = True if debug else False
 
 ALLOWED_HOSTS = [
     "146.83.216.228",
