@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from django.http import JsonResponse
 
-from .helper.variables import Metric_scores as metric_scores
+from .helper.variables import metric_scores as metric_scores
 from .helper.project_manager import ProjectManager
 from .helper.metric_score import ProjectMetricScore
 from .helper.filter_data_manager import FilterDataManager
@@ -14,7 +14,7 @@ class WeightError(Exception):
 class RepoInsightsFeaturedProjects(APIView):
     @staticmethod
     def validate_weights():
-        if sum(metric["weight"]["value"] for metric in metric_scores) != 1.0: # type: ignore
+        if sum(metric["weight"]["value"] for metric in metric_scores) != 1.0:  # type: ignore
             raise WeightError("Metric weights must sum to 1.0")
 
     def invert_if_necessary(self, metric, numeric_rating):
@@ -38,7 +38,6 @@ class RepoInsightsFeaturedProjects(APIView):
                 score += metric["weight"]["value"] * numeric_rating
         return score
 
-
     def get_top_n_repos(self, metrics_scores, projects, n):
         for project in projects:
             project["score"] = self.calculate_score(metrics_scores, project)
@@ -51,11 +50,17 @@ class RepoInsightsFeaturedProjects(APIView):
         try:
             self.validate_weights()
             projects = ProjectManager.get_projects()
-            projects = ProjectMetricScore.calc_metric_score(projects)
-            top_projects = self.get_top_n_repos(metric_scores, projects, number_of_projects)
+            projects = ProjectMetricScore.calc_metric_score(list(projects))
+            top_projects = self.get_top_n_repos(
+                metric_scores, projects, number_of_projects
+            )
 
-            user_project_ids = ProjectManager.get_user_selected_project_ids(current_user_id)
-            top_projects = FilterDataManager.user_selected(top_projects, user_project_ids)
+            user_project_ids = ProjectManager.get_user_selected_project_ids(
+                current_user_id
+            )
+            top_projects = FilterDataManager.user_selected(
+                top_projects, user_project_ids
+            )
             return JsonResponse({"projects": top_projects}, status=200, safe=True)
 
         except WeightError as e:

@@ -37,7 +37,9 @@ class RepoInsightsFavProjects(APIView):
         projects = FilterDataManager.user_selected(projects, user_projects_ids)
 
         if add_metrics:
-            projects = ProjectMetricScore.calc_metric_score(projects, empty_values=True)
+            projects = ProjectMetricScore.calc_metric_score(
+                projects, show_empty_values=True
+            )
             metrics = ProjectMetricScore.get_metrics()
             response["metrics"] = metrics
 
