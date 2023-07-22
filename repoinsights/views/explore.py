@@ -19,7 +19,9 @@ class RepoInsightsExplore(APIView):
         req_user = request.GET.get(USER)
 
         private_projects_ids = ProjectManager.get_private_projects_ids(user)
-        projects = ProjectManager.get_projects(extra_condition={"id__in": private_projects_ids})
+        projects = ProjectManager.get_projects(
+            extra_condition={"id__in": private_projects_ids}
+        )
         print(private_projects_ids)
 
         if req_user:
@@ -28,9 +30,11 @@ class RepoInsightsExplore(APIView):
                     ProjectManager.get_user_selected_project_ids(current_user_id)
                 )
                 projects = projects.filter(id__in=user_project_ids)
+
             elif req_user == "Proyectos privados":
                 ids = list(private_projects_ids)
                 projects = projects.filter(id__in=ids)
+
             else:
                 return JsonResponse({"error": "Invalid user filter"}, status=500)
 
@@ -45,8 +49,8 @@ class RepoInsightsExplore(APIView):
                 projects = FilterDataManager.project_filtered_by_commits(
                     projects, min_limit, max_limit
                 )
-        
-        result = ProjectMetricScore.calc_metric_score(projects)
+
+        result = ProjectMetricScore.calc_metric_score(list(projects))
         total = len(result)
         user_project_ids = ProjectManager.get_user_selected_project_ids(current_user_id)
         result = FilterDataManager.user_selected(result, user_project_ids)
@@ -58,8 +62,8 @@ class RepoInsightsExplore(APIView):
 class RepoInsightsExploreProject(APIView):
     def get(self, request, project_id):
         projects = ProjectManager.get_project_by_id(project_id)
-        projects = ProjectMetricScore.calc_metric_score(projects)
-        user_projects = ProjectManager.get_user_selected_project_ids(request.user.id)        
+        projects = ProjectMetricScore.calc_metric_score(list(projects))
+        user_projects = ProjectManager.get_user_selected_project_ids(request.user.id)
         project = list(projects)[0]
         project["selected"] = True if project_id in user_projects else False
         return JsonResponse(project, safe=False)
