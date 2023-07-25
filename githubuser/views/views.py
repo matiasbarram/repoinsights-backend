@@ -19,7 +19,7 @@ class GitHubProjects(APIView):
     def get(self, request):
         project_per_page = 5
         current_page = int(request.GET.get("page", 1))
-        url = f"https://api.github.com/user/repos?page={current_page}&per_page={project_per_page}&affiliation=owner&sort=updated"
+        url = f"https://api.github.com/user/repos?page={current_page}&per_page={project_per_page}&sort=updated&visibility=all"
         headers = {"Authorization": f"token {request.user.github_access_token}"}
         try:
             response = requests.get(url, headers=headers)
@@ -61,7 +61,7 @@ class GitHubProjects(APIView):
                         "error": "Error al obtener los proyectos de GitHub",
                         "message": response.json(),
                     },
-                    status=500,
+                    status=response.status_code,
                 )
         except Exception as e:
             print("Error al obtener los proyectos:", str(e))
@@ -209,3 +209,25 @@ class UserAddTokens(APIView):
                 safe=True,
                 status=500,
             )
+
+
+class GitHubCheckPrivate(APIView):
+    def get(self, request):
+        user = request.user
+        oauth_token = user.github_access_token
+        if not oauth_token:
+            return JsonResponse(
+                {"error": "User has no github access token"}, safe=True, status=400
+            )
+        url = f"https://api.github.com/user/repos?visibility=private"
+        response = requests.get(url, headers={"Authorization": f"token {oauth_token}"})
+        if response.status_code == 200:
+            total = len(response.json())
+            if total > 0:
+                return JsonResponse({"private": True}, safe=True, status=200)
+            else:
+                return JsonResponse({"private": False}, safe=True, status=200)
+        return JsonResponse(
+            {"private": False, "error": "Error al obtener los proyectos de GitHub"},
+            status=response.status_code,
+        )

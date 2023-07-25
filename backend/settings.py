@@ -2,6 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 import os
 import mimetypes
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,7 +29,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "backend.repoinsights.app",
     "repoinsights.app",
-    "127.0.0.1"
+    "127.0.0.1",
 ]
 
 CONSOLIDADA_DATABASE = os.environ["CONSOLIDADA_DB"]
@@ -36,7 +37,6 @@ CONSOLIDADA_USER = os.environ["CONSOLIDADA_USER"]
 CONSOLIDADA_IP = os.environ["CONSOLIDADA_IP"]
 CONSOLIDADA_PASSWORD = os.environ["CONSOLIDADA_PASS"]
 CONSOLIDADA_PORT = os.environ["CONSOLIDADA_PORT"]
-
 
 
 # Application definition
@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
-    'django_extensions',
+    "django_extensions",
     # Local apps
     "social",
     "metabase",
@@ -72,7 +72,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware"
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -86,7 +86,7 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 
-CSRF_TRUSTED_ORIGINS=[
+CSRF_TRUSTED_ORIGINS = [
     "https://*.repoinsights.app",
 ]
 
@@ -136,19 +136,17 @@ if develop:
     }
 else:
     default = {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ["DB_NAME"],
-        'USER': os.environ["DB_USER"],
-        'PASSWORD': os.environ["DB_PASS"],
-        'HOST': os.environ["DB_IP"],
-        'PORT': os.environ["DB_PORT"],
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": os.environ["DB_NAME"],
+        "USER": os.environ["DB_USER"],
+        "PASSWORD": os.environ["DB_PASS"],
+        "HOST": os.environ["DB_IP"],
+        "PORT": os.environ["DB_PORT"],
     }
 
 
-
-
 DATABASES = {
-    'default': default,
+    "default": default,
     "repoinsights": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "ghtorrent_restore_2015",
@@ -200,7 +198,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 GITHUB_CLIENT_ID = os.environ["GITHUB_CLIENT_ID"]
 GITHUB_CLIENT_SECRET = os.environ["GITHUB_CLIENT_SECRET"]
-GITHUB_SCOPES = ["read:user", "user:email", "repo"]
+GITHUB_SCOPES = ["read:user", "user:email", "read:project"]
 
 
 REST_AUTH_SERIALIZERS = {
@@ -213,4 +211,3 @@ METABASE_URL = os.environ["METABASE_URL"]
 MB_ADMIN_USER = os.environ["MB_ADMIN_USER"]
 MB_ADMIN_PASS = os.environ["MB_ADMIN_PASS"]
 METABASE_SECRET_KEY = os.environ["METABASE_SECRET_KEY"]
-
