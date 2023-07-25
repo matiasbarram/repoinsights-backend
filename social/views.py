@@ -34,15 +34,27 @@ class GithubLogin(APIView):
         return Response({"auth_url": url}, status=status.HTTP_200_OK)
 
 
+class GithubGrantPrivateRepo(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        client_id = settings.GITHUB_CLIENT_ID
+        private_scope = "repo"
+        scopes = settings.GITHUB_SCOPES.copy()
+        scopes.append(private_scope)
+        str_scopes = "%20".join(scopes)
+        url = f"https://github.com/login/oauth/authorize?client_id={client_id}&scope={str_scopes}"
+        return Response({"auth_url": url}, status=status.HTTP_200_OK)
+
+
 class GithubCallback(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
         code = request.GET.get("code")
         if not code:
-            return Response(
-                {"error": "Code not provided"}, status=status.HTTP_400_BAD_REQUEST
-            )
+            frontend_url = f"{settings.FRONTEND_URL}/auth/callback?error=access_denied"
+            return redirect(frontend_url)
 
         access_token = self.get_access_token(code)
         if not access_token:
@@ -98,7 +110,6 @@ class GithubCallback(APIView):
             "https://github.com/login/oauth/access_token", data=data, headers=headers
         )
         response_json: Dict = response.json()
-        pprint(response_json)
         return response_json.get("access_token")
 
     def get_user_data(self, access_token) -> Dict:
@@ -156,8 +167,6 @@ class GithubCallback(APIView):
             )
             self.create_metabase_user(user)
             return user
-
-
 
     def create_metabase_user(self, user):
         try:
@@ -242,10 +251,8 @@ class RegularLogin(APIView):
         user = User.objects.filter(email=username, github_id=password).first()
         print(user)
         if user is None:
-            return JsonResponse(
-                {"error": "Invalid credentials"}, status=400
-)
+            return JsonResponse({"error": "Invalid credentials"}, status=400)
         print("Generating token")
         token = generate_jwt_token(user)
         user_data = get_user_data_dict(user)
-        return JsonResponse({"token": token['access'], "user": user_data})
+        return JsonResponse({"token": token["access"], "user": user_data})
