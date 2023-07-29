@@ -61,9 +61,19 @@ class RepoInsightsExplore(APIView):
 
 class RepoInsightsExploreProject(APIView):
     def get(self, request, project_id):
-        projects = ProjectManager.get_project_by_id(project_id)
-        projects = ProjectMetricScore.calc_metric_score(list(projects))
+        projects = list(ProjectManager.get_project_by_id(project_id))
+        if len(projects) == 0:
+            return JsonResponse({"error": "Project not found"}, status=404)
+        if len(projects) > 1:
+            return JsonResponse({"error": "Multiple projects found"}, status=500)
+        if len(projects) == 1 and projects[0]["private"]:
+            single_project = projects[0]
+            user = request.user
+            private_projects_ids = ProjectManager.get_private_projects_ids(user)
+            if single_project["id"] not in private_projects_ids:
+                return JsonResponse({"error": "Private repository"}, status=404)
+        projects = ProjectMetricScore.calc_metric_score(projects)
         user_projects = ProjectManager.get_user_selected_project_ids(request.user.id)
         project = list(projects)[0]
         project["selected"] = True if project_id in user_projects else False
-        return JsonResponse(project, safe=False)
+        return JsonResponse(project, safe=True)
