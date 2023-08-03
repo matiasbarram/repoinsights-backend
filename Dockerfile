@@ -12,4 +12,4 @@ COPY . /app/
 RUN pipenv install --deploy
 RUN pipenv install --system 
 
-CMD ["pipenv", "run", "gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["pipenv", "run", "gunicorn", "backend.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]
